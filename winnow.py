@@ -28,11 +28,11 @@ def winnow(k_grams, k, t):
 	min = right_weight_min(lambda x: x[0])
 	fingerprints = []
 	hashes = [(hash(k_grams[i]), i) for i in range(len(k_grams))]
-	windowSize = t - k + 1
+	window_size = t - k + 1
 	# to guarantee matches for a t-sized string, 1 of the 
 	# t - k + 1 hashes which will match must be selected
 	# as a fingerprint.
-	w_start, w_end = 0, windowSize
+	w_start, w_end = 0, window_size
 	cur_min = None
 	while w_end < len(hashes):
 		window = hashes[w_start:w_end]
@@ -43,9 +43,28 @@ def winnow(k_grams, k, t):
 		w_start, w_end = w_start + 1, w_end + 1
 	return fingerprints
 
+def output_fingerprint(fingerprints, kgrams):
+	for i in fingerprints:
+		print(repr(kgrams[i[1]]), i[0])
+	print('---------------------------------')
+
+def process_document(s, k, t):
+	s = pre_process_document(s)
+	k_grams = make_kgrams(s)
+	fingerprints = winnow(k_grams, k, t)
+	output_fingerprint(fingerprints, k_grams)
+	match_set = set(fingerprints)
+
 k, t = 5, 8
 k_grams = make_kgrams('adorunrunrunadorunrun', k)
-print(k_grams)
-fingerprint = winnow(k_grams, k, t)
-l = [[2,0],[3,1],[4,2],[5,3],[1,4]]
-print(fingerprint)
+fingerprints = winnow(k_grams, k, t)
+output_fingerprint(fingerprints, k_grams)
+
+k_grams = make_kgrams('Didnt copy anyone. adorunrun. oh no, i did.', k)
+fingerprints = winnow(k_grams, k, t) 
+output_fingerprint(fingerprints, k_grams)
+
+match_set = set(fingerprints)
+
+#http://www.cse.buffalo.edu/~ss424/Presentations/UB-MOSS-Primer.pdf
+#https://github.com/ucarion/winnow/blob/master/lib/winnow/matcher.rb
